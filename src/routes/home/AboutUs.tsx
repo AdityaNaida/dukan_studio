@@ -78,9 +78,6 @@ export default function AboutUs() {
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-vermilion">
               The maker
             </p>
-            <h2 className="font-display mt-4 text-[clamp(1.7rem,4.5vw,2.6rem)] leading-tight">
-              Built by someone who ships for sellers.
-            </h2>
             <p className="mt-5 max-w-lg leading-relaxed text-ink-soft">
               PosterPulse is made by <span className="text-ink">Aditya Naida</span>{" "}
               — CEO at{" "}
