@@ -1,6 +1,6 @@
 import NewPrompt from "@/components/chat/NewPrompt";
 import MarkdownRenderer from "@/components/common/MarkdownRender";
-import { ImageKitProvider, Image } from "@imagekit/react";
+import { getChat } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -17,18 +17,7 @@ export default function ChatPage() {
   const chatId = path.split("/").pop();
   const { isPending, error, data } = useQuery({
     queryKey: ["chats", chatId],
-    queryFn: async () => {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/chat/get/${chatId}`
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch data");
-      }
-
-      return res.json();
-    },
-
+    queryFn: () => getChat(chatId as string),
     enabled: !!chatId,
   });
 
@@ -59,18 +48,14 @@ export default function ChatPage() {
             <div key={i} className="w-full min-w-0">
               {e.img && (
                 <div className="place-self-end-safe max-w-60 md:max-w-96 mb-3">
-                  <ImageKitProvider
-                    urlEndpoint={import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}
-                  >
-                    <Image
-                      src={e.img}
-                      width={600}
-                      height={400}
-                      transformation={[{ radius: 100 }]}
-                      loading="lazy"
-                      lqip={{ active: true, quality: 20 }}
-                    />
-                  </ImageKitProvider>
+                  <img
+                    src={e.img}
+                    alt="uploaded poster"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-auto"
+                    style={{ borderRadius: `10px` }}
+                  />
                 </div>
               )}
               <div

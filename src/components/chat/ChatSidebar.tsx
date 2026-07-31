@@ -12,6 +12,7 @@ import {
 
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { UserData } from "../common/Navbar";
+import { getUserChats, deleteChat } from "@/lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import "./NewPrompt.css";
@@ -41,56 +42,24 @@ export default function ChatSidebar({ userData }: Props) {
 
   const { isPending, error, data } = useQuery({
     queryKey: ["users", apiBody.userId], // include userId to refetch on change
-    queryFn: async () => {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/user/chats`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(apiBody),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch data");
-      }
-
-      return res.json();
-    },
+    queryFn: () => getUserChats(apiBody.userId),
     enabled: !!userData?._id, // only run query if userData._id exists
   });
 
   const handleDeleteChat = async (chatId: string) => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/chat/delete/${chatId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: userData?._id,
-          }),
-        }
-      );
+      await deleteChat(chatId);
 
-      if (res.ok) {
-        // Invalidate and refetch the chats query
-        await queryClient.invalidateQueries({
-          queryKey: ["users", apiBody.userId],
-        });
+      // Invalidate and refetch the chats query
+      await queryClient.invalidateQueries({
+        queryKey: ["users", apiBody.userId],
+      });
 
-        toast.success(`Chat is Deleted`, {
-          autoClose: 2000,
-          position: "bottom-right",
-        });
-        navigate("/app");
-      } else {
-        throw new Error("Failed to delete chat");
-      }
+      toast.success(`Chat is Deleted`, {
+        autoClose: 2000,
+        position: "bottom-right",
+      });
+      navigate("/app");
     } catch (error) {
       console.log(error);
       toast.error(`Chat isn't Deleted`, {

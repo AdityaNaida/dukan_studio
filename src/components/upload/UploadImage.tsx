@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useState } from "react";
-import { upload } from "@imagekit/react";
+import { uploadChatImage } from "@/lib/api";
 
 interface UploadImageProps {
   setImage: any;
@@ -12,24 +12,14 @@ const UploadImage = ({ setImage, setUploadProgress }: UploadImageProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
 
-  const authenticator = async () => {
-    try {
-      const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/auth");
-      if (!response.ok) throw new Error("Authentication failed");
-      return await response.json();
-    } catch (err) {
-      setError("Failed to get upload credentials");
-      throw err;
-    }
-  };
-
   const handleUpload = async (
     file: File,
     inlineData: { inlineData: { data: string; mimeType: string } }
   ) => {
     setIsUploading(true);
     setError("");
-    setUploadProgress(0);
+    // supabase-js doesn't report byte-level progress; show an in-flight value
+    setUploadProgress(30);
 
     // Set isLoading to true immediately when upload process starts
     setImage((prev: any) => ({
@@ -40,26 +30,12 @@ const UploadImage = ({ setImage, setUploadProgress }: UploadImageProps) => {
     }));
 
     try {
-      const { signature, expire, token, publicKey } = await authenticator();
-
-      const uploadResponse = await upload({
-        file,
-        fileName: file.name,
-        publicKey,
-        signature,
-        expire,
-        token,
-        onProgress: (progress) => {
-          setUploadProgress(
-            Math.round((progress.loaded / progress.total) * 100)
-          );
-        },
-      });
+      const publicUrl = await uploadChatImage(file);
 
       setImage((prev: any) => ({
         ...prev,
         isLoading: false,
-        dbData: uploadResponse, // This seems to store the ImageKit response
+        dbData: { filePath: publicUrl }, // public URL from the chat-images bucket
         aiData: inlineData, // Keep the inline data even after upload success
       }));
       setUploadProgress(100);
@@ -73,7 +49,7 @@ const UploadImage = ({ setImage, setUploadProgress }: UploadImageProps) => {
       }));
       console.error("Upload error:", err);
     } finally {
-      // isUploading is set to false here, which is fine.
+      setIsUploading(false);
       // Reset file input to allow re-uploading the same file
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -112,11 +88,10 @@ const UploadImage = ({ setImage, setUploadProgress }: UploadImageProps) => {
         return;
       }
 
-      // --- FileReader logic similar to your image ---
+      // Read the file as base64 for Gemini's inlineData input
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
-          // Fixed: Wrap data and mimeType in inlineData object
           const inlineData = {
             inlineData: {
               data: reader.result.split(",")[1], // Base64 content without the "data:image/png;base64," prefix

@@ -79,10 +79,10 @@ export default function Navbar() {
             <>
               <DropdownMenu>
                 {userData ? (
-                  <DropdownMenuTrigger className="flex items-center gap-1.5 bg-white md:gap-2 cursor-pointer z-50">
+                  <DropdownMenuTrigger className="flex items-center gap-1.5 md:gap-2 cursor-pointer z-50">
                     <Avatar className="h-7 w-7 md:h-8 md:w-8">
                       <AvatarImage src="/placeholder.svg" alt="User" />
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                      <AvatarFallback className="bg-vermilion text-paper-raised">
                         {userData.name.split("").shift()}
                       </AvatarFallback>
                     </Avatar>
@@ -106,10 +106,8 @@ export default function Navbar() {
                   </svg>
                 )}
 
-                <DropdownMenuContent className="ring-0 bg-white relative z-50  border-0 focus-visible:ring-offset-0 focus-visible:ring-0 rounded-md">
-                  <DropdownMenuLabel className="bg-white">
-                    My Account
-                  </DropdownMenuLabel>
+                <DropdownMenuContent className="dukaan ring-0 bg-paper-raised text-ink relative z-50 border border-ink/10 focus-visible:ring-offset-0 focus-visible:ring-0 rounded-md">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <NavLink to={"/app"}>New Chat</NavLink>
@@ -146,11 +144,7 @@ export default function Navbar() {
             <NavLink
               to={"/login"}
               style={{ borderRadius: "10px" }}
-              className={
-                isLanding
-                  ? "border border-ink/25 px-3 py-1 text-sm md:text-base text-ink transition-colors hover:border-ink/60"
-                  : "border border-purple-400 px-3 py-1 text-sm md:text-base text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500"
-              }
+              className="border border-ink/25 px-3 py-1 text-sm md:text-base text-ink transition-colors hover:border-ink/60"
             >
               Login
             </NavLink>

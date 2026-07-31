@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import UploadImage from "../upload/UploadImage";
-import { Image, ImageKitProvider } from "@imagekit/react";
 import Markdown from "react-markdown";
 import model from "@/lib/gemini";
+import { updateChat } from "@/lib/api";
 import "./NewPrompt.css";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { HistoryType } from "@/routes/chat/ChatPage";
@@ -75,18 +75,7 @@ export default function NewPrompt({ data }: Props) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (payload: MutationPayload) => {
-      return fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/chat/update/${data._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      ).then((res) => res.json());
-    },
+    mutationFn: (payload: MutationPayload) => updateChat(data._id, payload),
     onSuccess: (value) => {
       console.log(value);
       queryClient
@@ -202,16 +191,12 @@ export default function NewPrompt({ data }: Props) {
 
       {image.dbData?.filePath && (
         <div className="place-self-end-safe max-w-60 md:max-w-96">
-          <ImageKitProvider
-            urlEndpoint={import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}
-          >
-            <Image
-              src={image.dbData?.filePath}
-              width={600}
-              height={400}
-              transformation={[{ radius: 100 }]}
-            />
-          </ImageKitProvider>
+          <img
+            src={image.dbData?.filePath}
+            alt="uploaded poster"
+            className="w-full h-auto"
+            style={{ borderRadius: `10px` }}
+          />
         </div>
       )}
 

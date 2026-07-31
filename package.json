@@ -12,7 +12,6 @@
   "dependencies": {
     "@google/genai": "^0.14.1",
     "@google/generative-ai": "^0.24.1",
-    "@imagekit/react": "^5.0.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.9",
     "@radix-ui/react-collapsible": "^1.1.10",
@@ -28,7 +27,6 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.15.0",
     "highlight.js": "^11.11.1",
-    "imagekitio-react": "^4.3.0",
     "jose": "^6.2.5",
     "lucide-react": "^0.510.0",
     "react": "^19.1.0",

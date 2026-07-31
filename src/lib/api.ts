@@ -1,13 +1,12 @@
 import { supabase } from "./supabase";
 import type { HistoryType } from "@/routes/chat/ChatPage";
-import type { UserData } from "@/components/common/Navbar";
 import type { UserChatType } from "@/components/chat/ChatSidebar";
 
 /**
- * Supabase-backed replacements for the old Express/Mongo endpoints
- * (/api/user/*, /api/chat/*). Shapes mirror the old responses so the
- * components keep working: chats expose `_id`, history items keep
- * { role, parts: [{ text }], img }.
+ * Supabase-backed replacements for the old Express/Mongo chat endpoints
+ * (/api/chat/*, /api/user/chats) and the ImageKit upload. Shapes mirror the
+ * old responses so the components keep working: chats expose `_id`, history
+ * items keep { role, parts: [{ text }], img }.
  */
 
 export type ChatDataType = {
@@ -18,84 +17,7 @@ export type ChatDataType = {
   updatedAt: Date;
 };
 
-type AuthResult = {
-  success: boolean;
-  message: string;
-  token?: string;
-};
-
-// POST /api/user/register
-export async function registerUser(
-  name: string,
-  email: string,
-  password: string
-): Promise<AuthResult> {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { name } },
-  });
-
-  if (error) return { success: false, message: error.message };
-
-  // If email confirmation is enabled there is no session yet
-  if (!data.session) {
-    return {
-      success: false,
-      message: "Check your email to confirm your account, then login",
-    };
-  }
-
-  return {
-    success: true,
-    message: "User Registered Successfully",
-    token: data.session.access_token,
-  };
-}
-
-// POST /api/user/login
-export async function loginUser(
-  email: string,
-  password: string
-): Promise<AuthResult> {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) return { success: false, message: error.message };
-
-  return {
-    success: true,
-    message: "User Logged in Successfully",
-    token: data.session.access_token,
-  };
-}
-
-export async function logoutUser() {
-  localStorage.removeItem("UserSession");
-  await supabase.auth.signOut();
-}
-
-// POST /api/user/get — user data now comes straight from the auth session
-export async function getUser(): Promise<UserData | null> {
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
-  if (!user) return null;
-
-  return {
-    _id: user.id,
-    name: (user.user_metadata?.name as string) || user.email || "User",
-    email: user.email ?? "",
-    password: "",
-    lastLogin: new Date(user.last_sign_in_at ?? user.created_at),
-    createdAt: new Date(user.created_at),
-    updatedAt: new Date(user.updated_at ?? user.created_at),
-    chats: [],
-  };
-}
-
-// POST /api/user/chats
+// was POST /api/user/chats
 export async function getUserChats(userId: string): Promise<UserChatType[]> {
   const { data, error } = await supabase
     .from("chats")
@@ -112,7 +34,7 @@ export async function getUserChats(userId: string): Promise<UserChatType[]> {
   }));
 }
 
-// POST /api/chat/create — returns the new chat id
+// was POST /api/chat/create — returns the new chat id
 export async function createNewChat(
   userId: string,
   text: string
@@ -131,7 +53,7 @@ export async function createNewChat(
   return data.id;
 }
 
-// GET /api/chat/get/:id
+// was GET /api/chat/get/:id
 export async function getChat(chatId: string): Promise<ChatDataType> {
   const { data, error } = await supabase
     .from("chats")
@@ -150,7 +72,7 @@ export async function getChat(chatId: string): Promise<ChatDataType> {
   };
 }
 
-// PUT /api/chat/update/:id — append question/answer to history
+// was PUT /api/chat/update/:id — append question/answer to history
 export async function updateChat(
   chatId: string,
   payload: { question?: string; answer: string; img?: string }
@@ -181,21 +103,21 @@ export async function updateChat(
   return { success: true };
 }
 
-// DELETE /api/chat/delete/:id
+// was DELETE /api/chat/delete/:id
 export async function deleteChat(chatId: string) {
   const { error } = await supabase.from("chats").delete().eq("id", chatId);
   if (error) throw new Error(error.message);
   return { success: true };
 }
 
-// ImageKit replacement — upload to the public `chat-images` bucket,
+// ImageKit replacement — upload to the public `chat-images` bucket and
 // return the public URL (stored in history as `img`).
-export async function uploadChatImage(
-  file: File,
-  userId: string
-): Promise<string> {
+export async function uploadChatImage(file: File): Promise<string> {
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) throw new Error("Not signed in");
+
   const ext = file.name.split(".").pop() || "png";
-  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  const path = `${userData.user.id}/${crypto.randomUUID()}.${ext}`;
 
   const { error } = await supabase.storage
     .from("chat-images")

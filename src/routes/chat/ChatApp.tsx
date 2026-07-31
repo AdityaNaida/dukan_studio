@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Sessiontype, UserData } from "@/components/common/Navbar";
 import { getSessionFromLocalStorage } from "@/lib/globalMethod";
+import { createNewChat } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
@@ -14,13 +15,8 @@ export default function ChatApp() {
   const navigate = useNavigate();
   const mutation = useMutation({
     mutationFn: (text: string) => {
-      return fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: text, userId: userData?._id }),
-      }).then((res) => res.json());
+      if (!userData?._id) throw new Error("Not signed in");
+      return createNewChat(userData._id, text);
     },
     onSuccess: (id) => {
       // Invalidate and refetch
