@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 import { toast } from "react-toastify";
+import { supabase } from "@/lib/supabase";
 
 //types
 type Props = {
@@ -26,9 +27,9 @@ export default function ChatNavbar({ session, userData }: Props) {
     <nav className="sticky top-0 left-0 h-16 md:h-20 flex items-center justify-between px-3">
       <div className="flex items-center gap-2 font-medium">
         <SidebarTrigger className="cursor-pointer md:hidden" />
-        Neural{" "}
+        PosterPulse{" "}
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-          2.0 Pro
+          Studio
         </span>
       </div>
       <div className="flex items-center">
@@ -68,8 +69,9 @@ export default function ChatNavbar({ session, userData }: Props) {
                   <NavLink to={"/app"}>New Chat</NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => {
+                  onClick={async () => {
                     try {
+                      await supabase.auth.signOut();
                       localStorage.removeItem("UserSession");
 
                       toast.success(`Logged out`, {

@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "posterpulse",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -21,6 +21,7 @@
     "@radix-ui/react-separator": "^1.1.6",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.6",
+    "@supabase/supabase-js": "^2.111.0",
     "@tailwindcss/vite": "^4.1.6",
     "@tanstack/react-query": "^5.76.1",
     "class-variance-authority": "^0.7.1",
@@ -28,7 +29,7 @@
     "framer-motion": "^12.15.0",
     "highlight.js": "^11.11.1",
     "imagekitio-react": "^4.3.0",
-    "jose": "^6.0.11",
+    "jose": "^6.2.5",
     "lucide-react": "^0.510.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

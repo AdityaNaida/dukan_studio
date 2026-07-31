@@ -1,273 +1,308 @@
+import { NavLink } from "react-router-dom";
+import {
+  SAMPLE_REVIEW,
+  VERDICT_META,
+  type CheckStatus,
+} from "@/lib/review";
+
+const STATUS_STYLE: Record<
+  CheckStatus,
+  { mark: string; chip: string; text: string }
+> = {
+  pass: { mark: "✓", chip: "border-leaf/40 bg-leaf/10", text: "text-leaf" },
+  warn: {
+    mark: "!",
+    chip: "border-amber-600/40 bg-marigold/15",
+    text: "text-amber-700",
+  },
+  fail: {
+    mark: "✗",
+    chip: "border-vermilion/40 bg-vermilion/10",
+    text: "text-vermilion",
+  },
+};
+
+const TONE_STYLE: Record<
+  "leaf" | "marigold" | "vermilion",
+  { text: string; bar: string; border: string }
+> = {
+  leaf: { text: "text-leaf", bar: "bg-leaf", border: "border-leaf" },
+  marigold: {
+    text: "text-amber-700",
+    bar: "bg-marigold",
+    border: "border-amber-600",
+  },
+  vermilion: {
+    text: "text-vermilion",
+    bar: "bg-vermilion",
+    border: "border-vermilion",
+  },
+};
+
+const AXES = [
+  {
+    number: "Question 1",
+    title: "Is the product perfectly captured?",
+    intro:
+      "The craft half of the score. If the product isn't clearly seen, nothing else matters.",
+    items: [
+      { name: "Focus", note: "sharp where it matters" },
+      { name: "Lighting", note: "no shadow eating the label" },
+      { name: "Framing", note: "centred, with room to breathe" },
+      { name: "Background", note: "nothing stealing the eye" },
+      { name: "Fully visible", note: "no crop, no blockage" },
+    ],
+  },
+  {
+    number: "Question 2",
+    title: "Will it earn engagement?",
+    intro:
+      "The commerce half. The reviewer reads your poster the way a scroller does — in half a second, at arm's length, price first.",
+    items: [
+      { name: "Thumb-stop", note: "something arrests the scroll" },
+      { name: "Legibility", note: "text readable at phone size" },
+      { name: "Price", note: "visible before the caption" },
+      { name: "Urgency", note: "a reason to act now — festival, offer" },
+    ],
+  },
+];
+
+const STEPS = [
+  {
+    number: "01",
+    title: "Upload the poster",
+    body: "The Instagram post, the WhatsApp status, the festival offer card — straight off your phone, exactly as you made it.",
+  },
+  {
+    number: "02",
+    title: "Read the verdict",
+    body: "Post it, fix first, or reshoot — an honest verdict, not just praise, with an engagement score out of 100 and every check explained.",
+  },
+  {
+    number: "03",
+    title: "Fix, re-check, post",
+    body: "Apply the top fix, run it again, watch the pulse climb. Post the moment it says post it.",
+  },
+];
+
 export default function WhatDo() {
+  const review = SAMPLE_REVIEW;
+  const meta = VERDICT_META[review.verdict];
+  const tone = TONE_STYLE[meta.tone];
+
   return (
-    <div className="py-10 md:py-20">
-      <div className=" p-3 md:p-10 max-w-5xl gap-10  mx-auto  ">
-        <div className="space-y-4">
-          <p className="font-semibold text-3xl md:text-5xl text-left">
-            Your go-to tool for solving complex problem{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-              using AI.
-            </span>
-          </p>
-          <p className="text-gray-600">
-            Understanding your question before you finish asking, surfacing
-            insights before you even know you need them, and delivering answers
-            that keep you focused, curious, and in flow.
-          </p>
-        </div>
-
-        <div className="flex items-center flex-wrap md:flex-nowrap mt-6 gap-4">
-          <div
-            className="w-full md:w-[30%] h-auto md:h-60 py-14 md:py-10 p-6 space-y-8 flex justify-center flex-col items-center md:space-y-7 border border-purple-100 "
-            style={{ borderRadius: `10px` }}
-          >
-            <div className="flex items-center gap-2 -rotate-12">
-              <div className="bg-purple-50 w-fit p-2 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="size-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm px-12 md:px-6 py-2 bg-purple-50 w-fit rounded-2xl">
-                Analyse Image
+    <div>
+      {/* The report card */}
+      <section id="report" className="border-y border-ink/10 bg-paper-deep/50">
+        <div className="mx-auto grid w-full max-w-6xl gap-12 px-5 py-20 md:grid-cols-[1.02fr_0.98fr] md:items-start md:px-8 md:py-28">
+          {/* Marksheet */}
+          <article className="rounded-xl border border-ink/12 bg-paper-raised p-6 shadow-[0_20px_48px_rgba(34,29,24,0.14)] sm:p-7">
+            <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-ink/20 pb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink-soft">
+                Poster report
               </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-sm px-12 md:px-6 py-2 shadow-lg shadow-purple-500/50 bg-gradient-to-b from-pink-200 text-white to-purple-600 w-fit rounded-2xl">
-                Ask Anything
+              <p className="font-mono text-[10px] tracking-wider text-ink-soft">
+                {review.product_guess}
               </p>
-              <div className="bg-gradient-to-b from-pink-200 text-white to-purple-600 w-fit p-2 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="size-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 -rotate-12">
-              <div className="bg-purple-50 w-fit p-2 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="size-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm px-12 md:px-6 py-2 bg-purple-50 w-fit rounded-2xl">
-                Solve Doubts
-              </p>
-            </div>
-          </div>
-          <div
-            className="w-full md:w-[40%] p-6 h-64 md:h-60 border border-purple-100 relative flex items-center justify-between flex-col"
-            style={{ borderRadius: `10px` }}
-          >
-            <div className="w-full h-[1px] bg-gradient-to-br from-pink-400 to-purple-500 mt-10"></div>
-            <div
-              className="h-24 w-24 rounded-full flex items-center justify-center bg-gradient-to-br from-pink-200 to-purple-600 absolute"
-              style={{ padding: `1px` }}
-            >
-              <div className="h-full w-full bg-white rounded-full p-2">
-                <div className="bg-gradient-to-br shadow-lg shadow-purple-500/50 from-pink-200 to-purple-600 h-full w-full rounded-full flex items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={24}
-                    height={24}
-                    viewBox="0 0 24 24"
-                    className="text-white h-10 w-10 animate-bounce"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M12 1L9 9l-8 3l8 3l3 8l3-8l8-3l-8-3z"
-                    ></path>
-                  </svg>
-                </div>
-              </div>
             </div>
 
-            <p className="text-3xl font-semibold">
-              Your AI-powered problem{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-                solver
-              </span>
-            </p>
-          </div>
-          <div
-            className="w-full md:w-[30%] p-6 h-auto flex flex-col gap-2 md:h-60 border border-purple-100"
-            style={{ borderRadius: `10px` }}
-          >
-            <p className="text-xs font-medium">
-              Neural{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-                2.0 Pro
-              </span>
-            </p>
-            <div
-              className="h-12 w-18 bg-purple-50 border border-purple-100 self-end flex items-center justify-center"
-              style={{ borderRadius: `4px` }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-4"
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <span
+                className={`rounded border-2 px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.2em] ${tone.text} ${tone.border}`}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                {meta.label}
+              </span>
+              <p className="min-w-0 flex-1 text-sm leading-snug text-ink-soft">
+                {review.verdict_line}
+              </p>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-baseline justify-between">
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
+                  Engagement score
+                </p>
+                <p className="font-display text-3xl">
+                  {review.engagement_score}
+                  <span className="text-base text-ink-soft">/100</span>
+                </p>
+              </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-ink/10">
+                <div
+                  className={`h-full rounded-full ${tone.bar}`}
+                  style={{ width: `${review.engagement_score}%` }}
                 />
-              </svg>
+              </div>
             </div>
 
-            <div
-              className="text-xs w-fit self-end bg-purple-50 px-3 py-1"
-              style={{ borderRadius: `8px` }}
-            >
-              what is this?
-            </div>
+            <p className="mt-7 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
+              <span className="text-ink">Capture</span> — is the product
+              perfectly shot?
+            </p>
+            <ul className="mt-3 space-y-2.5">
+              {review.capture.map((item) => {
+                const style = STATUS_STYLE[item.status];
+                return (
+                  <li key={item.check} className="flex items-start gap-3">
+                    <span
+                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border font-mono text-[10px] font-bold ${style.chip} ${style.text}`}
+                      aria-label={item.status}
+                    >
+                      {style.mark}
+                    </span>
+                    <p className="text-sm leading-snug">
+                      <span className="font-medium">{item.check}.</span>{" "}
+                      <span className="text-ink-soft">{item.note}</span>
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
 
-            <p className="text-xs text-gray-600">
-              The image shows a red Puma shoe with the Ferrari logo on the side.
-              It has white accents along the sides and the sole.
+            <p className="mt-6 border-t border-dashed border-ink/20 pt-4 font-mono text-[9px] uppercase tracking-[0.18em] text-ink-soft">
+              Sample report · this is the real output format
+            </p>
+          </article>
+
+          {/* Ranked fixes + trilingual verdict */}
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-vermilion">
+              The report card
+            </p>
+            <h2 className="font-display mt-4 text-[clamp(1.8rem,5vw,2.8rem)] leading-tight">
+              Every point lost is named. Every fix is ranked.
+            </h2>
+            <p className="mt-5 leading-relaxed text-ink-soft">
+              No vague &#8220;looks nice&#8221;. The reviewer returns at most
+              three fixes, ordered by the engagement they win back — each one
+              doable with a phone and what&#8217;s already in the house.
             </p>
 
-            <div
-              className="bg-gray-200/60 h-14 mt-2 flex items-center justify-between px-3"
-              style={{ borderRadius: `6px` }}
-            >
-              <p className="text-xs text-gray-500">Ask me anything...</p>
-              <div className="flex items-center gap-1">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="size-3"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"
-                  />
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="size-4 text-gray-600"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </div>
+            <ol className="mt-8 space-y-5">
+              {review.fixes.map((fix, i) => (
+                <li key={fix.title} className="flex gap-4">
+                  <span className="font-display flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-ink/30 text-sm">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold tracking-tight">
+                        {fix.title}
+                      </h3>
+                      {i === 0 && (
+                        <span className="rounded-full bg-vermilion/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-vermilion">
+                          biggest lift
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+                      {fix.detail}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="mt-8 rounded-lg border border-dashed border-ink/25 bg-paper-raised/70 p-4">
+              <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-soft">
+                The verdict, in the language you sell in
+              </p>
+              <p className="font-hindi mt-3 leading-relaxed">
+                {review.verdict_hi}
+              </p>
+              <p className="font-bangla mt-2 leading-relaxed">
+                {review.verdict_bn}
+              </p>
             </div>
           </div>
         </div>
-        <div className="grid md:grid-cols-2 gap-4 mt-4">
-          <div
-            className="h-auto md:h-72 py-14 md:py-10 p-6 space-y-4 flex justify-center flex-col border border-purple-100 "
-            style={{ borderRadius: `10px` }}
-          >
-            <div className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-14 md:size-8 text-purple-600 "
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <p className="text-3xl font-semibold">
-                Turn your Text into{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-                  Code
+      </section>
+
+      {/* The two questions */}
+      <section className="mx-auto w-full max-w-6xl px-5 py-20 md:px-8 md:py-28">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-vermilion">
+          How posters get better
+        </p>
+        <h2 className="font-display mt-4 max-w-xl text-[clamp(1.8rem,5vw,2.8rem)] leading-tight">
+          Two questions decide every verdict.
+        </h2>
+        <p className="mt-5 max-w-xl leading-relaxed text-ink-soft">
+          Half the score is craft, half is commerce. A beautiful photo nobody
+          acts on fails the exam the same way a blurry one does.
+        </p>
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
+          {AXES.map((axis) => (
+            <article
+              key={axis.number}
+              className="rounded-xl border border-ink/12 bg-paper-raised p-6 shadow-[0_12px_32px_rgba(34,29,24,0.10)] sm:p-8"
+            >
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
+                {axis.number}
+              </p>
+              <h3 className="font-display mt-3 text-xl leading-snug">
+                {axis.title}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+                {axis.intro}
+              </p>
+              <ul className="mt-5 space-y-2.5">
+                {axis.items.map((item) => (
+                  <li key={item.name} className="flex items-baseline gap-3">
+                    <span
+                      className="font-mono text-[10px] text-marigold"
+                      aria-hidden
+                    >
+                      ✦
+                    </span>
+                    <p className="text-sm leading-snug">
+                      <span className="font-medium">{item.name}</span>{" "}
+                      <span className="text-ink-soft">— {item.note}</span>
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* Steps + CTA */}
+      <section className="bg-ink text-paper">
+        <div className="mx-auto w-full max-w-6xl px-5 py-20 md:px-8 md:py-28">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-marigold">
+            From draft to posted
+          </p>
+          <h2 className="font-display mt-4 max-w-2xl text-[clamp(1.8rem,5vw,2.8rem)] leading-tight">
+            Twenty seconds between made-it and post-it.
+          </h2>
+          <ol className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+            {STEPS.map((step) => (
+              <li key={step.number}>
+                <span className="font-display flex h-14 w-14 items-center justify-center rounded-full border-2 border-dashed border-paper/30 text-lg">
+                  {step.number}
                 </span>
-              </p>
-            </div>
-
-            <p className="text-left text-lg font-medium">
-              Write your #Prompt in your language
-            </p>
-            <div
-              className="px-3 py-2 bg-purple-50 text-sm"
-              style={{ borderRadius: `10px` }}
+                <h3 className="mt-5 text-lg font-semibold tracking-tight">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-paper/60">
+                  {step.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-14 flex flex-wrap items-center gap-4">
+            <NavLink
+              to="/signup"
+              className="rounded-full bg-marigold px-7 py-3.5 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
             >
-              React में useState और useEffect हुक का उपयोग क्यों किया जाता है?
-              इन्हें किसी कॉम्पोनेन्ट में कैसे इस्तेमाल करेंगे और TypeScript में
-              इनका टाइप कैसे सेट करेंगे?
-            </div>
-            <button className="ring-1 py-2 ring-purple-500 flex items-center justify-center gap-2 shadow-lg shadow-purple-100 rounded-2xl text-purple-600">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-                className="size-5"
-              >
-                <path
-                  fill="currentColor"
-                  d="M17.5 9a2.5 2.5 0 0 1 0-5a2.5 2.5 0 0 1 0 5m-3.07-.85L2 20.59L3.41 22L15.85 9.57c-.6-.33-1.09-.82-1.42-1.42M13 5l.63-1.37L15 3l-1.37-.63L13 1l-.62 1.37L11 3l1.38.63zm8 0l.63-1.37L23 3l-1.37-.63L21 1l-.62 1.37L19 3l1.38.63zm0 4l-.62 1.37L19 11l1.38.63L21 13l.63-1.37L23 11l-1.37-.63z"
-                ></path>
-              </svg>{" "}
-              Generate
-            </button>
-          </div>
-          <div
-            className=" h-auto md:h-72 py-14 md:py-10 p-6 flex justify-center flex-col items-center  space-y-4 border border-purple-100 "
-            style={{ borderRadius: `10px` }}
-          >
-            <p className="text-sm px-12 md:px-6 py-2 bg-purple-50 w-fit rounded-2xl">
-              Unlock Deeper Insights
-            </p>
-            <p className="text-sm px-12 md:px-6 py-2 bg-gradient-to-b shadow-lg shadow-purple-500/50 from-pink-200 text-white to-purple-600  w-fit rounded-2xl">
-              Go beyond surface-level answers
-            </p>
-            <p className="text-sm px-12 md:px-6 py-2 bg-purple-50 w-fit rounded-2xl">
-              This builds on "surfacing insights before you even know you need
-              them" from the main headline, emphasizing the AI's analytical
-              depth.
+              Review my poster →
+            </NavLink>
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-paper/50">
+              Upload · verdict · fix · post
             </p>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

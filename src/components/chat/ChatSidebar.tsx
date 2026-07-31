@@ -122,7 +122,7 @@ export default function ChatSidebar({ userData }: Props) {
                 to={"/"}
                 className={` md:text-lg font-semibold group-data-[state=collapsed]:opacity-0 group-data-[state=collapsed]:hidden`}
               >
-                Neural AI
+                PosterPulse
               </NavLink>
             </SheetClose>
           </SheetTitle>

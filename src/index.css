@@ -111,3 +111,151 @@ code {
 ul > li > a {
   color: rgb(0, 140, 255);
 }
+
+/* ── Dukaan Studio: bazaar-editorial system ─────────────────────────── */
+
+:root {
+  --paper: #f6efe2;
+  --paper-raised: #fcf7eb;
+  --paper-deep: #ece0c6;
+  --ink: #221d18;
+  --ink-soft: #6b5c4c;
+  --vermilion: #c5300c;
+  --marigold: #eda012;
+  --leaf: #1e4d34;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-paper-deep: var(--paper-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-vermilion: var(--vermilion);
+  --color-marigold: var(--marigold);
+  --color-leaf: var(--leaf);
+  --font-display: "Young Serif", "Georgia", serif;
+  --font-hindi: "Tiro Devanagari Hindi", serif;
+  --font-bangla: "Tiro Bangla", serif;
+  --font-mono: "Geist Mono", monospace;
+}
+
+.dukaan ::selection {
+  background: var(--marigold);
+  color: var(--ink);
+}
+
+/* Load-in reveal, staggered via inline animation-delay */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Ticker strip */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 26s linear infinite;
+}
+
+/* Analysis pass over the uploaded poster */
+@keyframes scan {
+  from {
+    top: -30%;
+  }
+  to {
+    top: 105%;
+  }
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 26%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(237, 160, 18, 0.3),
+    rgba(237, 160, 18, 0.85),
+    transparent
+  );
+  animation: scan 1.15s linear infinite;
+}
+
+/* Placeholder shimmer while the reviewer thinks */
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    100deg,
+    var(--paper-deep) 40%,
+    var(--paper-raised) 50%,
+    var(--paper-deep) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* Verdict stamp thock */
+@keyframes stamp {
+  from {
+    opacity: 0;
+    transform: rotate(-9deg) scale(1.7);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-3deg) scale(1);
+  }
+}
+
+.stamp-in {
+  animation: stamp 0.38s 0.1s cubic-bezier(0.2, 0.7, 0.3, 1.25) both;
+}
+
+/* Active step indicator */
+@keyframes pulse-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(237, 160, 18, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(237, 160, 18, 0);
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 1s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .animate-marquee,
+  .scan-line,
+  .shimmer,
+  .stamp-in,
+  .pulse-ring {
+    animation: none;
+  }
+}

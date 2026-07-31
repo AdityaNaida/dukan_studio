@@ -20,24 +20,11 @@ export default function DashboardLayout({ children }: DashboardProp) {
       const session = (await getSessionFromLocalStorage()) as Sessiontype;
 
       if (session && session.user) {
-        const reqBody = {
-          id: session.user._id as string,
-        };
-
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/user/get`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(reqBody),
-          }
-        );
-
-        const data = await res.json();
-
-        setUserData(data.user);
+        setUserData({
+          _id: session.user._id,
+          name: session.user.name,
+          email: session.user.email,
+        } as UserData);
       } else {
         console.log("No valid session found.");
       }

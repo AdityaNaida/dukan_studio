@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
+import { supabase } from "@/lib/supabase";
 
 export default function Login() {
   const [viewPassword, setViewPassword] = useState(false);
@@ -23,47 +24,44 @@ export default function Login() {
 
     if (formData.password.length > 6 || formData.password.length === 6) {
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/user/login`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          }
-        );
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
 
-        const data = await res.json();
-        console.log("Server Response:", data);
-
-        if (res.ok && data && data.token) {
-          localStorage.setItem("UserSession", data.token);
-          toast.success("Login successful!", {
-            autoClose: 600,
-            position: "bottom-right",
-          });
-
-          setIsSubmitting(false);
-          window.location.reload();
-
-          setFormData({
-            email: "",
-            password: "",
-          });
-        } else {
-          toast.error(`${data.message}`, {
+        if (error || !data.session) {
+          const message =
+            error?.message === "Invalid login credentials"
+              ? "Wrong email or password."
+              : (error?.message ?? "Could not sign you in. Try again.");
+          toast.error(message, {
             autoClose: 1000,
             position: "bottom-right",
           });
           setIsSubmitting(false);
+          return;
         }
+
+        localStorage.setItem("UserSession", data.session.access_token);
+        toast.success("Login successful!", {
+          autoClose: 600,
+          position: "bottom-right",
+        });
+
+        setIsSubmitting(false);
+        window.location.reload();
+
+        setFormData({
+          email: "",
+          password: "",
+        });
       } catch (error) {
         console.error("Error:", error);
         toast.error("Error connecting to server.", {
           autoClose: 1000,
           position: "bottom-right",
         });
+        setIsSubmitting(false);
       }
     } else {
       toast.error("Password min 6 characters.", {

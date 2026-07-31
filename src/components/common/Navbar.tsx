@@ -16,6 +16,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { getSessionFromLocalStorage } from "@/lib/globalMethod";
+import { supabase } from "@/lib/supabase";
+import Logo from "@/components/common/Logo";
 
 //types
 export type UserData = {
@@ -35,6 +37,7 @@ export type Sessiontype = {
   user: {
     _id: string;
     email: string;
+    name: string;
   };
 };
 
@@ -47,24 +50,11 @@ export default function Navbar() {
       const session = (await getSessionFromLocalStorage()) as Sessiontype;
 
       if (session && session.user) {
-        const reqBody = {
-          id: session.user._id as string,
-        };
-
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/user/get`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(reqBody),
-          }
-        );
-
-        const data = await res.json();
-
-        setUserData(data.user);
+        setUserData({
+          _id: session.user._id,
+          name: session.user.name,
+          email: session.user.email,
+        } as UserData);
       } else {
         console.log("No valid session found.");
       }
@@ -74,23 +64,25 @@ export default function Navbar() {
   }, [session]);
 
   return (
-    <header className="sticky bg-white z-20 top-0 left-0 h-16 md:h-20 flex items-center px-3">
+    <header
+      className={`sticky z-20 top-0 left-0 h-16 md:h-20 flex items-center px-3 ${
+        isLanding
+          ? "dukaan bg-paper/90 text-ink backdrop-blur border-b border-ink/10"
+          : "bg-white"
+      }`}
+    >
       <nav className="max-w-7xl mx-auto flex items-center justify-between flex-nowrap w-full">
         <NavLink
           to={"/"}
           className={`text-xl md:text-2xl font-semibold flex items-center flex-nowrap gap-1`}
         >
-          <img
-            src="/logo.webp"
-            alt="logo image"
-            className="h-8 md:h-10 w-8 md:w-10"
-            loading="lazy"
-            decoding="async"
-          />
-          Neural AI
+          <Logo className="h-8 md:h-10 w-8 md:w-10" />
+          PosterPulse
         </NavLink>
 
-        <div className="flex items-center relative z-50 bg-white">
+        <div
+          className={`flex items-center relative z-50 ${isLanding ? "" : "bg-white"}`}
+        >
           {session && session.length > 0 ? (
             <>
               <DropdownMenu>
@@ -131,8 +123,9 @@ export default function Navbar() {
                     <NavLink to={"/app"}>New Chat</NavLink>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => {
+                    onClick={async () => {
                       try {
+                        await supabase.auth.signOut();
                         localStorage.removeItem("UserSession");
 
                         toast.success(`Logged out`, {
@@ -161,7 +154,11 @@ export default function Navbar() {
             <NavLink
               to={"/login"}
               style={{ borderRadius: "10px" }}
-              className={`border border-purple-400 px-3 py-1 text-sm md:text-base text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500 `}
+              className={
+                isLanding
+                  ? "border border-ink/25 px-3 py-1 text-sm md:text-base text-ink transition-colors hover:border-ink/60"
+                  : "border border-purple-400 px-3 py-1 text-sm md:text-base text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500"
+              }
             >
               Login
             </NavLink>

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 //alerts
 import { toast } from "react-toastify";
+//supabase
+import { supabase } from "@/lib/supabase";
 
 export default function Signup() {
   const [viewPassword, setViewPassword] = useState(false);
@@ -27,48 +29,65 @@ export default function Signup() {
 
     if (formData.password.length > 6 || formData.password.length === 6) {
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/user/register`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          }
-        );
+        // Creates a pre-confirmed Supabase Auth user — no OTP, no email link.
+        const { error: signupError } = await supabase.rpc("auth_signup", {
+          p_name: formData.name,
+          p_email: formData.email,
+          p_password: formData.password,
+        });
 
-        const data = await res.json();
-        console.log("Server Response:", data);
-
-        if (res.ok && data && data.token) {
-          localStorage.setItem("UserSession", data.token);
-          toast.success("Registration successful!", {
-            autoClose: 600,
-            position: "bottom-right",
-          });
-
-          setIsSubmitting(false);
-          window.location.reload();
-
-          setFormData({
-            name: "",
-            email: "",
-            password: "",
-          });
-        } else {
-          toast.error(`${data.message}`, {
+        if (signupError) {
+          const message = signupError.message.includes("email_taken")
+            ? "An account with this email already exists."
+            : signupError.message.includes("invalid_email")
+              ? "Please enter a valid email."
+              : signupError.message.includes("invalid_name")
+                ? "Please enter your name."
+                : "Could not create your account. Try again.";
+          toast.error(message, {
             autoClose: 1000,
             position: "bottom-right",
           });
           setIsSubmitting(false);
+          return;
         }
+
+        const { data, error: loginError } =
+          await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+          });
+
+        if (loginError || !data.session) {
+          toast.error("Account created — please log in.", {
+            autoClose: 1000,
+            position: "bottom-right",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        localStorage.setItem("UserSession", data.session.access_token);
+        toast.success("Registration successful!", {
+          autoClose: 600,
+          position: "bottom-right",
+        });
+
+        setIsSubmitting(false);
+        window.location.reload();
+
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+        });
       } catch (error) {
         console.error("Error:", error);
         toast.error("Error connecting to server.", {
           autoClose: 1000,
           position: "bottom-right",
         });
+        setIsSubmitting(false);
       }
     } else {
       toast.error("Password min 6 characters.", {

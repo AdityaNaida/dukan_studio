@@ -1,24 +1,31 @@
-import { decodeJwt, jwtVerify } from "jose";
-
-// const key = new TextEncoder().encode(secretKey);
-const key = new TextEncoder().encode(import.meta.env.VITE_JWTKEY);
-
-export async function verifyAndDecodeToken(token: string) {
-  try {
-    const { payload } = await jwtVerify(token, key, {
-      algorithms: ["HS256"],
-    });
-
-    return payload;
-  } catch (error) {
-    console.error("Invalid token:", error);
-    return null;
-  }
-}
+import { decodeJwt } from "jose";
+import { supabase } from "@/lib/supabase";
 
 export async function getSessionFromLocalStorage() {
-  const token = localStorage.getItem("UserSession");
+  // supabase-js owns the real session (and refreshes it automatically);
+  // the "UserSession" key is kept in sync as the flag the route guards check.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!token) return null;
-  return decodeJwt(token);
+  if (!session || !session.user) {
+    localStorage.removeItem("UserSession");
+    return null;
+  }
+
+  localStorage.setItem("UserSession", session.access_token);
+
+  const { iat, exp } = decodeJwt(session.access_token);
+  const meta = (session.user.user_metadata ?? {}) as { full_name?: string };
+
+  return {
+    exp,
+    iat,
+    expires: new Date((exp ?? 0) * 1000),
+    user: {
+      _id: session.user.id,
+      email: session.user.email ?? "",
+      name: meta.full_name ?? "",
+    },
+  };
 }

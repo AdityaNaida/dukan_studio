@@ -34,24 +34,11 @@ export default function ChatApp() {
       const session = (await getSessionFromLocalStorage()) as Sessiontype;
 
       if (session && session.user) {
-        const reqBody = {
-          id: session.user._id as string,
-        };
-
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/user/get`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(reqBody),
-          }
-        );
-
-        const data = await res.json();
-
-        setUserData(data.user);
+        setUserData({
+          _id: session.user._id,
+          name: session.user.name,
+          email: session.user.email,
+        } as UserData);
       } else {
         console.log("No valid session found.");
       }
@@ -97,8 +84,8 @@ export default function ChatApp() {
               />
             </svg>
 
-            <p className="text-sm font-medium">Analyze consequences</p>
-            <p className="text-xs text-gray-600">of space exploration</p>
+            <p className="text-sm font-medium">Review my poster</p>
+            <p className="text-xs text-gray-600">before the sale goes live</p>
           </div>
           <div className="space-y-1 border-2 border-purple-400 p-3 rounded-2xl">
             <svg
@@ -116,8 +103,8 @@ export default function ChatApp() {
               />
             </svg>
 
-            <p className="text-sm font-medium">Create an app</p>
-            <p className="text-xs text-gray-600">for tracking tasks</p>
+            <p className="text-sm font-medium">Score my design</p>
+            <p className="text-xs text-gray-600">will it stop the scroll?</p>
           </div>
           <div className="space-y-1 border-2 border-purple-400 p-3 rounded-2xl hidden md:block">
             <svg
@@ -135,8 +122,8 @@ export default function ChatApp() {
               />
             </svg>
 
-            <p className="text-sm font-medium">Design an interactive</p>
-            <p className="text-xs text-gray-600">kaleidoscope</p>
+            <p className="text-sm font-medium">Write a better caption</p>
+            <p className="text-xs text-gray-600">with hashtags that convert</p>
           </div>
         </div>
       </div>
@@ -148,7 +135,7 @@ export default function ChatApp() {
       >
         <input
           type="text"
-          placeholder="Ask me anything..."
+          placeholder="Ask about your poster..."
           className="text-sm w-4/5 outline-none"
           required
           name="text"
