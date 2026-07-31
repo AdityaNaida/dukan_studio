@@ -34,11 +34,11 @@ export default function DashboardLayout({ children }: DashboardProp) {
   }, [session]);
 
   return (
-    <SidebarProvider className="bg-gray-50" defaultOpen={true}>
+    <SidebarProvider className="dukaan bg-paper text-ink" defaultOpen={true}>
       {userData && userData._id && <ChatSidebar userData={userData} />}
       <SidebarInset className="flex flex-col">
         <ChatNavbar session={session} userData={userData} />
-        <div className="md:flex-1 md:overflow-auto  bg-gray-50 px-3">
+        <div className="md:flex-1 md:overflow-auto bg-paper px-3">
           {children}
         </div>
       </SidebarInset>

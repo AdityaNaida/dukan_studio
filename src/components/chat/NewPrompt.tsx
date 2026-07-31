@@ -148,19 +148,19 @@ export default function NewPrompt({ data }: Props) {
 
   // Thinking animation component
   const ThinkingAnimation = () => (
-    <div className="flex items-center gap-2 text-gray-600 py-2">
-      <span className="text-xs">Thinking</span>
+    <div className="flex items-center gap-2 text-ink-soft py-2">
+      <span className="text-xs">Reviewing</span>
       <div className="flex gap-1">
         <div
-          className="w-1 h-1 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full animate-bounce"
+          className="w-1 h-1 bg-vermilion rounded-full animate-bounce"
           style={{ animationDelay: "0ms" }}
         ></div>
         <div
-          className="w-1 h-1 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full animate-bounce"
+          className="w-1 h-1 bg-marigold rounded-full animate-bounce"
           style={{ animationDelay: "150ms" }}
         ></div>
         <div
-          className="w-1 h-1 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full animate-bounce"
+          className="w-1 h-1 bg-leaf rounded-full animate-bounce"
           style={{ animationDelay: "300ms" }}
         ></div>
       </div>
@@ -170,8 +170,8 @@ export default function NewPrompt({ data }: Props) {
   return (
     <>
       {image.isLoading && uploadProgress && (
-        <div className="h-40 w-60 bg-gray-100 flex items-center justify-center gap-2 place-self-end-safe">
-          <p className="text-sm text-gray-600">
+        <div className="h-40 w-60 rounded-xl border border-ink/10 bg-paper-deep/60 flex items-center justify-center gap-2 place-self-end-safe">
+          <p className="text-sm text-ink-soft">
             File Uploading...{uploadProgress}%
           </p>
           <svg
@@ -179,7 +179,7 @@ export default function NewPrompt({ data }: Props) {
             width={24}
             height={24}
             viewBox="0 0 24 24"
-            className="animate-spin text-gray-500"
+            className="animate-spin text-ink-soft"
           >
             <path
               fill="currentColor"
@@ -202,7 +202,7 @@ export default function NewPrompt({ data }: Props) {
 
       {question && (
         <div
-          className="place-self-end-safe bg-gray-200/60 text-right px-3 py-3 text-sm"
+          className="place-self-end-safe bg-paper-deep/70 border border-ink/10 text-right px-3 py-3 text-sm"
           style={{ borderRadius: `10px` }}
         >
           {question}
@@ -227,13 +227,13 @@ export default function NewPrompt({ data }: Props) {
 
       <form
         onSubmit={handleSubmit}
-        className="w-full md:max-w-2xl absolute bottom-4 md:bottom-2 z-20 bg-gray-200 left-1/2 p-4 flex items-center justify-between gap-2"
-        style={{ transform: `translate(-50%,0%)`, borderRadius: `10px` }}
+        className="w-[calc(100%-24px)] md:w-full md:max-w-2xl absolute bottom-4 md:bottom-2 z-20 left-1/2 p-4 flex items-center justify-between gap-2 rounded-xl border border-ink/15 bg-paper-raised shadow-[0_14px_36px_rgba(34,29,24,0.14)]"
+        style={{ transform: `translate(-50%,0%)` }}
       >
         <input
           type="text"
-          placeholder={isGenerating ? "Please wait..." : "Ask me anything..."}
-          className="text-sm w-4/5 outline-none"
+          placeholder={isGenerating ? "Please wait..." : "Ask about your poster..."}
+          className="text-sm flex-1 min-w-0 bg-transparent outline-none placeholder:text-ink-soft/60"
           required
           name="text"
           value={userInput}
@@ -251,13 +251,15 @@ export default function NewPrompt({ data }: Props) {
           <button
             type="submit"
             disabled={isGenerating}
-            className={isGenerating ? "opacity-50 cursor-not-allowed" : ""}
+            className={
+              isGenerating ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="size-8 text-gray-600"
+              className="size-8 text-vermilion transition-transform hover:scale-105"
             >
               <path
                 fillRule="evenodd"

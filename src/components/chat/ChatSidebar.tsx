@@ -12,6 +12,7 @@ import {
 
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { UserData } from "../common/Navbar";
+import Logo from "../common/Logo";
 import { getUserChats, deleteChat } from "@/lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
@@ -78,13 +79,7 @@ export default function ChatSidebar({ userData }: Props) {
       >
         <SidebarHeader className="flex items-center justify-between flex-row">
           <SheetTitle className="flex items-center flex-nowrap gap-1">
-            <img
-              src="/logo.webp"
-              alt="logo image"
-              className="h-6 md:h-7 w-6 md:w-7"
-              loading="lazy"
-              decoding="async"
-            />
+            <Logo className="h-6 md:h-7 w-6 md:w-7" />
             {/* Wrap NavLink with SheetClose */}
             <SheetClose asChild>
               <NavLink
@@ -111,8 +106,7 @@ export default function ChatSidebar({ userData }: Props) {
                 <SheetClose asChild>
                   <NavLink
                     to={"/app"}
-                    style={{ borderRadius: `10px` }}
-                    className={`bg-gradient-to-br from-purple-500 to-blue-500 mt-5 text-white py-2 text-center flex items-center justify-center gap-2 group-data-[state=collapsed]:opacity-0`}
+                    className={`bg-vermilion rounded-full mt-5 text-sm font-medium text-paper-raised py-2.5 text-center flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(197,48,12,0.25)] transition-transform hover:-translate-y-0.5 group-data-[state=collapsed]:opacity-0`}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -132,7 +126,7 @@ export default function ChatSidebar({ userData }: Props) {
                   </NavLink>
                 </SheetClose>
 
-                <p className="my-4 text-xs group-data-[state=collapsed]:opacity-0 group-data-[state=collapsed]:hidden">
+                <p className="my-4 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft group-data-[state=collapsed]:opacity-0 group-data-[state=collapsed]:hidden">
                   Recent Chats
                 </p>
 
@@ -156,8 +150,8 @@ export default function ChatSidebar({ userData }: Props) {
                     {data.map((e: UserChatType) => (
                       <div
                         key={e._id}
-                        className={`relative navlink hover:bg-gray-100 group-data-[state=collapsed]:opacity-0 group-data-[state=collapsed]:hidden ${
-                          e._id === pathname ? `bg-gray-100` : ``
+                        className={`relative navlink hover:bg-paper-deep/60 group-data-[state=collapsed]:opacity-0 group-data-[state=collapsed]:hidden ${
+                          e._id === pathname ? `bg-paper-deep/60` : ``
                         }`}
                         style={{ borderRadius: `10px` }}
                       >

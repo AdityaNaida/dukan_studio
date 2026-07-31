@@ -24,12 +24,12 @@ type Props = {
 
 export default function ChatNavbar({ session, userData }: Props) {
   return (
-    <nav className="sticky top-0 left-0 h-16 md:h-20 flex items-center justify-between px-3">
+    <nav className="dukaan sticky top-0 left-0 z-10 h-16 md:h-20 flex items-center justify-between px-3 bg-paper/90 text-ink backdrop-blur border-b border-ink/10">
       <div className="flex items-center gap-2 font-medium">
         <SidebarTrigger className="cursor-pointer md:hidden" />
         PosterPulse{" "}
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-          Studio
+        <span className="rounded-full border border-ink/15 bg-paper-raised px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-soft">
+          studio
         </span>
       </div>
       <div className="flex items-center">
@@ -40,7 +40,7 @@ export default function ChatNavbar({ session, userData }: Props) {
                 <DropdownMenuTrigger className="flex items-center gap-1.5 md:gap-2 cursor-pointer">
                   <Avatar className="h-7 w-7 md:h-8 md:w-8">
                     <AvatarImage src="/placeholder.svg" alt="User" />
-                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                    <AvatarFallback className="bg-vermilion text-paper-raised">
                       {userData.name.split("").shift()}
                     </AvatarFallback>
                   </Avatar>
@@ -62,7 +62,7 @@ export default function ChatNavbar({ session, userData }: Props) {
                 </svg>
               )}
 
-              <DropdownMenuContent className="ring-0 border-0 focus-visible:ring-offset-0 focus-visible:ring-0 rounded-md">
+              <DropdownMenuContent className="dukaan ring-0 bg-paper-raised text-ink border border-ink/10 focus-visible:ring-offset-0 focus-visible:ring-0 rounded-md">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
@@ -100,7 +100,7 @@ export default function ChatNavbar({ session, userData }: Props) {
           <NavLink
             to={"/login"}
             style={{ borderRadius: "10px" }}
-            className={`border border-gray-300 text-gray-600 px-3 py-1 text-sm md:text-base`}
+            className={`border border-ink/25 text-ink px-3 py-1 text-sm md:text-base transition-colors hover:border-ink/60`}
           >
             Login
           </NavLink>
