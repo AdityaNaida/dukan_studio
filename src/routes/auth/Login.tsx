@@ -73,7 +73,7 @@ export default function Login() {
   };
 
   return (
-    <div className="dukaan bg-paper text-ink min-h-[calc(100vh-64px)] md:min-h-[calc(100vh-80px)] flex flex-col items-center justify-center px-5 py-12">
+    <div className="dukaan bg-paper text-ink min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-80px)] flex flex-col items-center justify-center px-5 py-12">
       <div className="w-full max-w-md">
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">
           Sign in

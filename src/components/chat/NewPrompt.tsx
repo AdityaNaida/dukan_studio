@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
-import UploadImage from "../upload/UploadImage";
 import Markdown from "react-markdown";
 import model from "@/lib/gemini";
 import { updateChat } from "@/lib/api";
 import "./NewPrompt.css";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { HistoryType } from "@/routes/chat/ChatPage";
+import Composer, { EMPTY_IMAGE } from "@/components/chat/Composer";
 
 //type
 type ChatDataType = {
@@ -27,18 +27,35 @@ type MutationPayload = {
   img?: string;
 };
 
+// Rebuild Gemini inlineData from a stored public image URL, so the first
+// reply of a chat created with an attachment can still see the poster.
+async function urlToInlinePart(url: string) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Could not fetch image");
+  const blob = await res.blob();
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result.split(",")[1]);
+      } else {
+        reject(new Error("Could not read image"));
+      }
+    };
+    reader.onerror = () => reject(new Error("Could not read image"));
+    reader.readAsDataURL(blob);
+  });
+  return {
+    inlineData: { data: base64, mimeType: blob.type || "image/jpeg" },
+  };
+}
+
 export default function NewPrompt({ data }: Props) {
   const [question, setQuestion] = useState<string>("");
   const [answer, setAnswer] = useState<string>("");
   const [userInput, setUserInput] = useState<string>("");
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [image, setImage] = useState<any>({
-    isLoading: false,
-    error: "",
-    dbData: {},
-    aiData: {},
-  });
+  const [image, setImage] = useState<any>({ ...EMPTY_IMAGE });
 
   const chat = model.startChat({
     history: [
@@ -60,8 +77,16 @@ export default function NewPrompt({ data }: Props) {
       !isGenerating;
 
     if (needsInitialResponse) {
-      const initialPrompt = data.history[0].parts[0].text;
-      add(initialPrompt, true);
+      const first = data.history[0];
+      const initialPrompt = first.parts[0].text;
+
+      if (first.img) {
+        urlToInlinePart(first.img)
+          .then((part) => add(initialPrompt, true, part))
+          .catch(() => add(initialPrompt, true));
+      } else {
+        add(initialPrompt, true);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.history]);
@@ -84,12 +109,7 @@ export default function NewPrompt({ data }: Props) {
           setTimeout(() => {
             setQuestion("");
             setAnswer("");
-            setImage({
-              isLoading: false,
-              error: "",
-              dbData: {},
-              aiData: {},
-            });
+            setImage({ ...EMPTY_IMAGE });
             setIsGenerating(false);
           }, 500);
         });
@@ -100,7 +120,11 @@ export default function NewPrompt({ data }: Props) {
     },
   });
 
-  const add = async (userInput: string, isInitial: boolean = false) => {
+  const add = async (
+    userInput: string,
+    isInitial: boolean = false,
+    inlinePart?: any
+  ) => {
     try {
       setIsGenerating(true);
 
@@ -111,10 +135,12 @@ export default function NewPrompt({ data }: Props) {
       // Reset answer to show thinking animation
       setAnswer("");
 
+      const imagePart =
+        inlinePart ??
+        (Object.entries(image.aiData).length ? image.aiData : null);
+
       const result = await chat.sendMessageStream(
-        Object.entries(image.aiData).length
-          ? [image.aiData, userInput]
-          : userInput
+        imagePart ? [imagePart, userInput] : userInput
       );
 
       let accumulatedText = "";
@@ -127,7 +153,7 @@ export default function NewPrompt({ data }: Props) {
       mutation.mutate({
         question: !isInitial && userInput.length ? userInput : undefined,
         answer: accumulatedText,
-        img: image.dbData?.filePath || undefined,
+        img: !isInitial ? image.dbData?.filePath || undefined : undefined,
       });
     } catch (error) {
       console.log(error);
@@ -138,7 +164,7 @@ export default function NewPrompt({ data }: Props) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      if (!userInput || isGenerating) return;
+      if (!userInput || isGenerating || image.isLoading) return;
       await add(userInput);
       setUserInput("");
     } catch (error) {
@@ -169,30 +195,11 @@ export default function NewPrompt({ data }: Props) {
 
   return (
     <>
-      {image.isLoading && uploadProgress && (
-        <div className="h-40 w-60 rounded-xl border border-ink/10 bg-paper-deep/60 flex items-center justify-center gap-2 place-self-end-safe">
-          <p className="text-sm text-ink-soft">
-            File Uploading...{uploadProgress}%
-          </p>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={24}
-            height={24}
-            viewBox="0 0 24 24"
-            className="animate-spin text-ink-soft"
-          >
-            <path
-              fill="currentColor"
-              d="M12 2.25c-5.384 0-9.75 4.366-9.75 9.75s4.366 9.75 9.75 9.75v-2.437A7.312 7.312 0 1 1 19.313 12h2.437c0-5.384-4.366-9.75-9.75-9.75"
-            ></path>
-          </svg>
-        </div>
-      )}
-
-      {image.dbData?.filePath && (
+      {/* Optimistic view of the message just sent, until the refetch lands */}
+      {question && image.dbData?.filePath && (
         <div className="place-self-end-safe max-w-60 md:max-w-96">
           <img
-            src={image.dbData?.filePath}
+            src={image.dbData.filePath}
             alt="uploaded poster"
             className="w-full h-auto"
             style={{ borderRadius: `10px` }}
@@ -223,53 +230,17 @@ export default function NewPrompt({ data }: Props) {
         </div>
       )}
 
-      <div ref={endChatRef} className="mt-20 md:mt-10" />
+      <div ref={endChatRef} className="mt-36 md:mt-28" />
 
-      <form
+      <Composer
+        value={userInput}
+        onChange={setUserInput}
         onSubmit={handleSubmit}
-        className="w-[calc(100%-24px)] md:w-full md:max-w-2xl absolute bottom-4 md:bottom-2 z-20 left-1/2 p-4 flex items-center justify-between gap-2 rounded-xl border border-ink/15 bg-paper-raised shadow-[0_14px_36px_rgba(34,29,24,0.14)]"
-        style={{ transform: `translate(-50%,0%)` }}
-      >
-        <input
-          type="text"
-          placeholder={isGenerating ? "Please wait..." : "Ask about your poster..."}
-          className="text-sm flex-1 min-w-0 bg-transparent outline-none placeholder:text-ink-soft/60"
-          required
-          name="text"
-          value={userInput}
-          onChange={(e) => {
-            setUserInput(e.target.value);
-          }}
-          disabled={isGenerating}
-        />
-
-        <div className="flex items-center gap-2">
-          <UploadImage
-            setImage={setImage}
-            setUploadProgress={setUploadProgress}
-          />
-          <button
-            type="submit"
-            disabled={isGenerating}
-            className={
-              isGenerating ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-            }
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="size-8 text-vermilion transition-transform hover:scale-105"
-            >
-              <path
-                fillRule="evenodd"
-                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-      </form>
+        image={image}
+        setImage={setImage}
+        placeholder="Ask about your poster..."
+        disabled={isGenerating}
+      />
     </>
   );
 }

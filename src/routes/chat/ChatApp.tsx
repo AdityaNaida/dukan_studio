@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import type { Sessiontype, UserData } from "@/components/common/Navbar";
 import { getSessionFromLocalStorage } from "@/lib/globalMethod";
 import { createNewChat } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import Composer, { EMPTY_IMAGE } from "@/components/chat/Composer";
 
 const SUGGESTIONS = [
   {
@@ -47,15 +49,16 @@ const SUGGESTIONS = [
 export default function ChatApp() {
   const [userInput, setUserInput] = useState<string>("");
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [image, setImage] = useState<any>({ ...EMPTY_IMAGE });
   const session = localStorage.getItem("UserSession");
 
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
   const mutation = useMutation({
-    mutationFn: (text: string) => {
+    mutationFn: ({ text, img }: { text: string; img?: string }) => {
       if (!userData?._id) throw new Error("Not signed in");
-      return createNewChat(userData._id, text);
+      return createNewChat(userData._id, text, img);
     },
     onSuccess: (id) => {
       // Invalidate and refetch
@@ -86,7 +89,11 @@ export default function ChatApp() {
     e.preventDefault();
 
     try {
-      mutation.mutate(userInput);
+      if (!userInput || image.isLoading || mutation.isPending) return;
+      mutation.mutate({
+        text: userInput,
+        img: image.dbData?.filePath || undefined,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -94,7 +101,7 @@ export default function ChatApp() {
 
   return (
     <div className="h-full relative md:px-10">
-      <div className="h-[calc(100vh-100px)] gap-3 mx-auto max-w-2xl flex items-center justify-center flex-col md:h-[calc(100vh-120px)] overflow-y-auto scroll-smooth transition-all ease duration-100 px-1">
+      <div className="h-[calc(100dvh-100px)] gap-3 mx-auto max-w-2xl flex items-center justify-center flex-col md:h-[calc(100dvh-120px)] overflow-y-auto scroll-smooth transition-all ease duration-100 px-1">
         {userData && (
           <p className="font-display text-2xl md:text-3xl text-center">
             Welcome, {userData.name.split(" ").shift()}
@@ -102,7 +109,7 @@ export default function ChatApp() {
           </p>
         )}
         <p className="text-sm text-ink-soft">
-          Which poster are we judging today?
+          Attach a poster and tell me what you want to know.
         </p>
 
         <div className="grid w-full grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mt-6">
@@ -131,44 +138,15 @@ export default function ChatApp() {
         </div>
       </div>
 
-      <form
+      <Composer
+        value={userInput}
+        onChange={setUserInput}
         onSubmit={handleSubmit}
-        className="w-[calc(100%-24px)] md:w-full md:max-w-2xl absolute bottom-4 md:bottom-2 left-1/2 p-4 flex items-center justify-between gap-2 rounded-xl border border-ink/15 bg-paper-raised shadow-[0_14px_36px_rgba(34,29,24,0.14)]"
-        style={{ transform: `translate(-50%,0%)` }}
-      >
-        <input
-          type="text"
-          placeholder="Ask about your poster..."
-          className="text-sm flex-1 min-w-0 bg-transparent outline-none placeholder:text-ink-soft/60"
-          required
-          name="text"
-          value={userInput}
-          onChange={(e) => {
-            setUserInput(e.target.value);
-          }}
-        />
-
-        <div className="flex items-center gap-2">
-          {/* <UploadImage
-            setImage={setImage}
-            setUploadProgress={setUploadProgress}
-          /> */}
-          <button type="submit" className="cursor-pointer">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="size-8 text-vermilion transition-transform hover:scale-105"
-            >
-              <path
-                fillRule="evenodd"
-                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-      </form>
+        image={image}
+        setImage={setImage}
+        placeholder="Ask about your poster..."
+        disabled={mutation.isPending}
+      />
     </div>
   );
 }
