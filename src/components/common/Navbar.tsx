@@ -64,13 +64,7 @@ export default function Navbar() {
   }, [session]);
 
   return (
-    <header
-      className={`sticky z-20 top-0 left-0 h-16 md:h-20 flex items-center px-3 ${
-        isLanding
-          ? "dukaan bg-paper/90 text-ink backdrop-blur border-b border-ink/10"
-          : "bg-white"
-      }`}
-    >
+    <header className="dukaan sticky z-20 top-0 left-0 h-16 md:h-20 flex items-center px-3 bg-paper/90 text-ink backdrop-blur border-b border-ink/10">
       <nav className="max-w-7xl mx-auto flex items-center justify-between flex-nowrap w-full">
         <NavLink
           to={"/"}
@@ -80,9 +74,7 @@ export default function Navbar() {
           PosterPulse
         </NavLink>
 
-        <div
-          className={`flex items-center relative z-50 ${isLanding ? "" : "bg-white"}`}
-        >
+        <div className="flex items-center relative z-50">
           {session && session.length > 0 ? (
             <>
               <DropdownMenu>
