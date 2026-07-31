@@ -37,15 +37,14 @@ export async function getUserChats(userId: string): Promise<UserChatType[]> {
 // was POST /api/chat/create — returns the new chat id
 export async function createNewChat(
   userId: string,
-  text: string,
-  img?: string
+  text: string
 ): Promise<string> {
   const { data, error } = await supabase
     .from("chats")
     .insert({
       user_id: userId,
       title: text.substring(0, 40),
-      history: [{ role: "user", parts: [{ text }], ...(img && { img }) }],
+      history: [{ role: "user", parts: [{ text }] }],
     })
     .select("id")
     .single();

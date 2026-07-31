@@ -27,7 +27,7 @@ export default function ChatPage() {
 
   return (
     <div className="h-full relative md:px-10">
-      <div className="h-[calc(100dvh-100px)] gap-4 mx-auto max-w-2xl flex flex-col md:h-[calc(100dvh-120px)] overflow-y-auto overflow-x-hidden scroll-smooth transition-all ease duration-100">
+      <div className="h-[calc(100vh-100px)] gap-4 mx-auto max-w-2xl flex flex-col md:h-[calc(100vh-120px)] overflow-y-auto overflow-x-hidden scroll-smooth transition-all ease duration-100">
         {isPending ? (
           <div className="flex flex-1 items-center justify-center">
             <svg

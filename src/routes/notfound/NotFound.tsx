@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 export default function NotFound() {
   return (
-    <div className="dukaan bg-paper text-ink min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-80px)] flex items-center justify-center px-5 py-16">
+    <div className="dukaan bg-paper text-ink min-h-[calc(100vh-64px)] md:min-h-[calc(100vh-80px)] flex items-center justify-center px-5 py-16">
       <div className="max-w-md text-center">
         <span className="stamp-in inline-block rounded border-2 border-vermilion px-3 py-1 font-mono text-sm font-bold uppercase tracking-[0.25em] text-vermilion">
           Reshoot
